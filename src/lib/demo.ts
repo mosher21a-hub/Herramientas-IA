@@ -6,7 +6,7 @@ import type { Tool } from './types'
  * configurado (.env). Contiene el mismo contenido que la migración 0002_seed.sql.
  */
 export const demoCatalog = (
-  seedCatalog as unknown as Omit<Tool, 'user_id' | 'is_public'>[],
+  seedCatalog as unknown as Omit<Tool, 'user_id' | 'is_public'>[]
 ).map((t) => ({
   ...t,
   user_id: null,

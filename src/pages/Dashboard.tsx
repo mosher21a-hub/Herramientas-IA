@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Tool | null>(null)
   const [opError, setOpError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const load = useCallback(async () => {
     if (!session) return
