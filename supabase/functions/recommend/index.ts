@@ -54,7 +54,7 @@ Deno.serve(async (req: Request) => {
 
     const baseUrl = Deno.env.get('AI_GATEWAY_BASE_URL') ?? 'https://ai-gateway.vercel.sh/v1'
     const apiKey = Deno.env.get('AI_GATEWAY_API_KEY')
-    const model = Deno.env.get('AI_MODEL') ?? 'openai/gpt-4o-mini'
+    const model = Deno.env.get('AI_MODEL') ?? 'gemini-3.8-flash'
 
     let rec: RecPayload | null = null
 
@@ -66,6 +66,7 @@ Deno.serve(async (req: Request) => {
         'Responde ÚNICAMENTE JSON válido con esta forma: ' +
         '{"multi": boolean, "steps": [{"order": number, "id": "id del catálogo", "reason": "máx 20 palabras"}]}. ' +
         'Usa solo ids del catálogo. Máximo 4 pasos.'
+      
       const res = await fetch(baseUrl.replace(/\/$/, '') + '/chat/completions', {
         method: 'POST',
         headers: {
@@ -100,11 +101,20 @@ Deno.serve(async (req: Request) => {
                 reason: s.reason,
               }))
             if (steps.length > 0) rec = { multi: Boolean(parsed.multi), steps }
+          } else {
+            console.error("La IA respondió correctamente, pero el JSON no contenía la estructura 'steps' esperada.", parsed)
           }
-        } catch {
+        } catch (err) {
+          console.error("Error al parsear el JSON de la IA:", err, "Respuesta raw del modelo:", raw)
           rec = null // JSON inválido del modelo → fallback local
         }
+      } else {
+        // AQUÍ ES DONDE ATRAPAMOS EL ERROR DEL AI GATEWAY
+        const errorText = await res.text()
+        console.error(`Error del AI Gateway [${res.status} ${res.statusText}]:`, errorText)
       }
+    } else {
+      console.error("No se encontró la variable AI_GATEWAY_API_KEY configurada.")
     }
 
     if (!rec) {
@@ -119,6 +129,7 @@ Deno.serve(async (req: Request) => {
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (e) {
+    console.error("Error crítico en la Edge Function:", e)
     return new Response(JSON.stringify({ error: String(e) }), {
       status: 500,
       headers: { ...cors, 'Content-Type': 'application/json' },
