@@ -1,0 +1,7 @@
+# Configuración mínima para desplegar la Edge Function con la CLI de Supabase
+# (supabase functions deploy recommend)
+project_id = "toolnest"
+
+[functions.recommend]
+# La función valida su propia entrada y admite llamadas anónimas (visitantes).
+verify_jwt = false
