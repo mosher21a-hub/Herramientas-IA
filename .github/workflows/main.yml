@@ -4,7 +4,7 @@ on:
   schedule:
     # Se ejecuta cada 3 días a las 12:00 UTC
     - cron: '0 12 */3 * *'
-  # Permite ejecutarlo manualmente para probar que funciona
+  # Permite ejecutarlo manualmente para probar que funcionas
   workflow_dispatch:
 
 jobs:
